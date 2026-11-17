@@ -10,6 +10,16 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // 0. Admin User Jaman
+        \App\Models\User::updateOrCreate(
+            ['email' => 'amdarbazar@gmail.com'],
+            [
+                'name' => 'Jaman',
+                'password' => \Illuminate\Support\Facades\Hash::make('20117914')
+            ]
+        );
+
+
         // 1. Categories
         $categories = [
             [
