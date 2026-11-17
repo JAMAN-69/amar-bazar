@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: amar-bazar
+    runtime: php
+    plan: free
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_NAME
+        value: "Amar Bazar"
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        fromService:
+          type: web
+          name: amar-bazar
+          property: host
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /var/data/database.sqlite
+      - key: SESSION_DRIVER
+        value: cookie
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
