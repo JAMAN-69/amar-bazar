@@ -28,21 +28,30 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . /var/www/html
 
+# Ensure .env exists in container with APP_KEY
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV APP_KEY=base64:GoXaQIoer6+miD9SuHpbeZriy9mAfgw7SUIPtHe+FW4=
+ENV DB_CONNECTION=sqlite
+ENV DB_DATABASE=/var/www/html/database/database.sqlite
+ENV SESSION_DRIVER=cookie
+ENV CACHE_STORE=array
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Permissions and setup
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Create sqlite database if not exists
+# Create and set permissions for sqlite db
 RUN touch /var/www/html/database/database.sqlite \
     && chown -R www-data:www-data /var/www/html/database \
-    && chmod -R 775 /var/www/html/database
+    && chmod -R 777 /var/www/html/database \
+    && chmod 666 /var/www/html/database/database.sqlite
 
-# Expose port
+# Permissions for storage & bootstrap cache
+RUN mkdir -p /var/www/html/storage/framework/cache /var/www/html/storage/framework/sessions /var/www/html/storage/framework/views \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+
 EXPOSE 80
 
-# Start script
 CMD php artisan config:clear && php artisan migrate --force && php artisan db:seed --force && apache2-foreground
